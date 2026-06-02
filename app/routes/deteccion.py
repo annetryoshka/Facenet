@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from ..services.yolo_service import yolo_service
 from ..services.reconocimiento_service import reconocimiento_service
+from ..services.acceso_service import AccesoService
 from ..models.database import db, Deteccion
 from datetime import datetime
 
@@ -15,8 +16,7 @@ def extension_valida(nombre):
 @deteccion_bp.post('/imagen')
 def detectar_imagen():
     """
-    Recibe imagen, detecta caras con YOLO
-    e identifica cada cara con DeepFace.
+    Detecta caras, identifica y REGISTRA ENTRADA/SALIDA automáticamente.
     """
     if 'imagen' not in request.files:
         return jsonify({'error': 'Campo "imagen" requerido'}), 400
@@ -35,45 +35,47 @@ def detectar_imagen():
         return jsonify({
             'ok':       True,
             'mensaje':  'No se detectaron caras',
-            'personas': []
+            'accesos':  []
         }), 200
 
-    # Paso 2: DeepFace identifica cada cara
+    # Paso 2: DeepFace identifica + AccesoService registra entrada/salida
     resultados = []
     for cara in caras:
         identificacion = reconocimiento_service.identificar(cara['imagen'])
 
-        resultado = {
-            'persona':      identificacion['persona'],
-            'identificado': identificacion['identificado'],
-            'confianza':    identificacion['confianza'],
-            'bbox':         cara['bbox'],
-        }
+        if identificacion['identificado']:
+            # Registrar entrada/salida automáticamente
+            acceso = AccesoService.registrar_acceso(
+                identificacion['persona'],
+                identificacion['confianza'] / 100
+            )
+            resultado = {
+                'persona':      identificacion['persona'],
+                'identificado': True,
+                'confianza':    identificacion['confianza'],
+                'tipo_acceso':  acceso['tipo'],  # 'entrada' o 'salida'
+                'hora':         acceso['hora'],
+            }
+        else:
+            resultado = {
+                'persona':      'Desconocido',
+                'identificado': False,
+                'confianza':    0,
+                'tipo_acceso':  'acceso_denegado',
+            }
+
         resultados.append(resultado)
 
-        # Guardar en base de datos
-        db.session.add(Deteccion(
-            clase     = identificacion['persona'],
-            confianza = identificacion['confianza'] / 100,
-            fuente    = 'imagen',
-        ))
-
-    db.session.commit()
-
     return jsonify({
-        'ok':              True,
-        'total_caras':     len(caras),
-        'personas':        resultados,
-        'timestamp':       datetime.utcnow().isoformat(),
+        'ok':      True,
+        'accesos': resultados,
+        'timestamp': datetime.utcnow().isoformat(),
     }), 200
 
 
 @deteccion_bp.post('/registrar')
 def registrar_persona():
-    """
-    Registra una nueva persona en el dataset.
-    Body: imagen + nombre
-    """
+    """Registra una nueva persona en el dataset"""
     if 'imagen' not in request.files:
         return jsonify({'error': 'Campo "imagen" requerido'}), 400
 
@@ -88,8 +90,44 @@ def registrar_persona():
     return jsonify(resultado), 201
 
 
+@deteccion_bp.get('/dentro')
+def personas_dentro():
+    """¿Quién está dentro del edificio AHORA?"""
+    personas = AccesoService.obtener_personas_dentro()
+    return jsonify({
+        'ok':      True,
+        'total':   len(personas),
+        'personas': personas
+    })
+
+
+@deteccion_bp.get('/historial/<nombre>')
+def historial_persona(nombre):
+    """Historial completo de una persona"""
+    registros = AccesoService.historial_persona(nombre)
+    return jsonify({
+        'ok':     True,
+        'persona': nombre,
+        'total':  len(registros),
+        'data':   registros
+    })
+
+
+@deteccion_bp.get('/reporte/hoy')
+def reporte_hoy():
+    """Reporte de accesos de hoy"""
+    reporte = AccesoService.reporte_diario()
+    return jsonify({
+        'ok':      True,
+        'fecha':   datetime.utcnow().date().isoformat(),
+        'total_personas': len(reporte),
+        'reporte': reporte
+    })
+
+
 @deteccion_bp.get('/historial')
 def historial():
+    """Historial general"""
     limite = request.args.get('limite', 50, type=int)
     registros = Deteccion.query.order_by(
         Deteccion.timestamp.desc()
@@ -99,21 +137,4 @@ def historial():
         'ok':    True,
         'total': len(registros),
         'data':  [r.to_dict() for r in registros],
-    })
-
-
-@deteccion_bp.get('/estadisticas')
-def estadisticas():
-    from sqlalchemy import func
-    total     = Deteccion.query.count()
-    conf_prom = db.session.query(
-        func.avg(Deteccion.confianza)
-    ).scalar() or 0
-
-    return jsonify({
-        'ok': True,
-        'estadisticas': {
-            'total_detecciones':  total,
-            'confianza_promedio': round(conf_prom, 4),
-        }
     })
