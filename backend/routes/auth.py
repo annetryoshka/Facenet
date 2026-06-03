@@ -15,14 +15,14 @@ def login():
         usuario = request.form.get('usuario')
         password = request.form.get('password')
 
-        # Primero intentamos autenticar por imagen (si se envía)
+        #autenticar por imagen
         if 'imagen' in request.files:
             imagen = request.files['imagen']
             imagen_bytes = imagen.read()
 
             caras, frame = yolo_service.detectar_caras(imagen_bytes)
             if caras:
-                # Ordenar por confianza de detección YOLO (mayor primero)
+                # Ordenar por confianza
                 caras_sorted = sorted(caras, key=lambda c: c.get('confianza', 0), reverse=True)
                 for cara in caras_sorted:
                     ident = reconocimiento_service.identificar(cara['imagen'])
@@ -52,7 +52,7 @@ def login():
                         else:
                             return jsonify({'ok': False, 'error': 'Confianza insuficiente', 'confianza': confianza}), 401
 
-        # Si no fue posible por imagen, intentar fallback por contraseña (ADMIN_PASSWORD)
+
         admin_pw = os.getenv('ADMIN_PASSWORD')
         if password and usuario and admin_pw and password == admin_pw:
             empleado = Empleado.query.filter((Empleado.nombre == usuario) | (Empleado.email == usuario)).first()

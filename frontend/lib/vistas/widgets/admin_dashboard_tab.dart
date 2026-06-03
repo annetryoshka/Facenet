@@ -46,7 +46,6 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> with SingleTicker
       }
 
       final stats = controller.estadisticas;
-      // Debug: Si en consola ves todo en 0, revisa los nombres de las llaves en stats
       debugPrint("Estadísticas recibidas: $stats"); 
       
       final double porcentajeDecimal = (double.tryParse(stats['porcentaje']?.toString() ?? '0') ?? 0) / 100;
@@ -96,7 +95,7 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> with SingleTicker
               
               const SizedBox(height: 40),
               
-              // Contadores KPIs (Aquí los he restaurado)
+              // Contadores KPIs
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -131,34 +130,83 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> with SingleTicker
                       title: Text(item['nombre'], style: const TextStyle(fontWeight: FontWeight.w600)),
                       subtitle: const Text("Toca para ver desglose", style: TextStyle(fontSize: 10)),
                       trailing: Text(
-                        "\$${(item['descuento'] as num).toStringAsFixed(2)}",
+                        "Bs ${(item['descuento'] as num).toStringAsFixed(2)}",
                         style: const TextStyle(fontSize: 15, color: Colors.red, fontWeight: FontWeight.w700),
                       ),
                       onTap: () {
-                        final detalles = controller.obtenerDetalleDescuento(item['nombre']);
+                        final descuentoData = item;
+                        
                         Get.bottomSheet(
                           Container(
-                            height: Get.height * 0.6,
+                            height: Get.height * 0.7,
                             padding: const EdgeInsets.all(20),
                             decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
                             child: Column(
                               children: [
-                                Text("Desglose: ${item['nombre']}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                Text("Desglose de Descuento: ${item['nombre']}", 
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                 const Divider(),
+                                
+                                // Datos del descuento
                                 Expanded(
-                                  child: ListView.separated(
-                                    itemCount: detalles.length,
-                                    separatorBuilder: (context, index) => const Divider(height: 1),
-                                    itemBuilder: (context, index) {
-                                      final d = detalles[index];
-                                      final bool esEntrada = d['tipo']?.toString().toLowerCase() == 'entrada';
-                                      return ListTile(
-                                        leading: Icon(esEntrada ? Icons.login_rounded : Icons.logout_rounded, color: esEntrada ? Colors.green : Colors.orange),
-                                        title: Text(d['tipo']?.toString().toUpperCase() ?? 'EVENTO', style: const TextStyle(fontWeight: FontWeight.w600)),
-                                        subtitle: Text(d['timestamp']?.toString() ?? ''),
-                                        trailing: const Text("-\$5.00", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                                      );
-                                    },
+                                  child: Card(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15),
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                const Text("Salario Base:", style: TextStyle(fontWeight: FontWeight.w600)),
+                                                Text("Bs ${(descuentoData['salario'] as num).toStringAsFixed(2)}"),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                const Text("Razón:", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                                                Expanded(
+                                                  child: Text(descuentoData['razon'] ?? 'Sin especificar', 
+                                                    textAlign: TextAlign.end,
+                                                    style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                const Text("Porcentaje:", style: TextStyle(fontWeight: FontWeight.w600)),
+                                                Text("${(descuentoData['descuento_pct'] as num).toStringAsFixed(2)}%"),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                const Text("Monto Descuento:", style: TextStyle(fontWeight: FontWeight.w600, color: Colors.red)),
+                                                Text("Bs ${(descuentoData['descuento'] as num).toStringAsFixed(2)}", 
+                                                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 16),
+                                            const Divider(),
+                                            const SizedBox(height: 8),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                const Text("Salario Final:", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.green)),
+                                                Text("Bs ${(descuentoData['salario_final'] as num).toStringAsFixed(2)}", 
+                                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green)),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],

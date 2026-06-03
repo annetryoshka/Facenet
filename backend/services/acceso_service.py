@@ -11,21 +11,24 @@ class AccesoService:
         Si no está → es ENTRADA
         """
         activa = PersonaActiva.query.filter_by(nombre=persona).first()
+        ahora = datetime.now()  # ← HORA LOCAL, NO UTC
 
         if activa:
-            #salida pq ya estaba dentro del laburo
+            # SALIDA porque ya estaba dentro del laburo
             tipo = 'salida'
+            activa.ultima_visto = ahora
             db.session.delete(activa)
         else:
-            #entrada al laburo pq no estaba jujuujj
+            # ENTRADA al laburo porque no estaba
             tipo = 'entrada'
-            nueva_activa = PersonaActiva(nombre=persona)
+            nueva_activa = PersonaActiva(nombre=persona, entrada=ahora)
             db.session.add(nueva_activa)
 
         deteccion = Deteccion(
             persona    = persona,
             tipo       = tipo,
             confianza  = confianza,
+            timestamp  = ahora,  # ← AHORA SÍ TIENE TIMESTAMP
             estado     = 'fuera' if tipo == 'salida' else 'dentro'
         )
         db.session.add(deteccion)
@@ -34,7 +37,8 @@ class AccesoService:
         return {
             'persona': persona,
             'tipo': tipo,
-            'hora': datetime.utcnow().isoformat(),
+            'hora': ahora.strftime('%H:%M:%S'),
+            'timestamp': ahora.isoformat(),
         }
 
     @staticmethod
@@ -55,7 +59,7 @@ class AccesoService:
     def reporte_diario():
         """Reporte de quién entró hoy"""
         from sqlalchemy import func
-        hoy = datetime.utcnow().date()
+        hoy = datetime.now().date()
         
         entradas = db.session.query(
             Deteccion.persona,
