@@ -1,3 +1,6 @@
+import os
+import shutil
+
 from flask import Blueprint, request, jsonify
 from ..services.empleado_service import EmpleadoService
 from datetime import datetime
@@ -105,4 +108,36 @@ def listar_empleados():
         'ok':        True,
         'total':     len(empleados),
         'empleados': empleados
+    }), 200
+    
+@empleados_bp.delete('/<string:nombre>')
+def eliminar_empleado(nombre):
+    """
+    Elimina un empleado de la Base de Datos y remueve sus fotos de entrenamiento en Facenet.
+    """
+    from ..services.reconocimiento_service import reconocimiento_service
+
+    resultado_db = EmpleadoService.eliminar_empleado(nombre)
+    
+    if 'error' in resultado_db:
+        return jsonify(resultado_db), 400
+
+    try:
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        DATASET_DIR = os.path.join(BASE_DIR, 'dataset')
+        
+        nombre_carpeta = nombre.strip().replace(' ', '_')
+        ruta_carpeta = os.path.join(DATASET_DIR, nombre_carpeta)
+        
+        if os.path.exists(ruta_carpeta):
+            shutil.rmtree(ruta_carpeta)
+    except Exception as e:
+        return jsonify({
+            'ok': True,
+            'mensaje': f'Empleado eliminado de la base de datos, pero hubo un detalle al remover sus fotos: {str(e)}'
+        }), 200
+
+    return jsonify({
+        'ok': True,
+        'mensaje': f'Empleado {nombre} y su dataset facial han sido eliminados correctamente.'
     }), 200

@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:camera/camera.dart';
 import 'package:facenet_app/data/models/empleado.dart';
 import 'package:facenet_app/data/models/app_state.dart'; 
+import 'package:facenet_app/controles/admin_controller.dart';
 import 'package:facenet_app/services/api_service.dart';
 
 class AsistenciaController extends GetxController with GetSingleTickerProviderStateMixin {
@@ -73,48 +75,81 @@ class AsistenciaController extends GetxController with GetSingleTickerProviderSt
       error.value = "La cámara aún no se ha inicializado por completo.";
       return;
     }
-
     if (isLoading.value) return;
-
+    
     try {
       isLoading.value = true;
       empleadoRegistrado.value = null;
       error.value = null;
       tipo.value = null;
-
-      final XFile foto = await cameraController!.takePicture();
-      final bytes = await foto.readAsBytes();
-      String base64Image = base64Encode(bytes);
       
-      var result = await _apiService.enviarImagen(base64Image);
-
+      // Tomar foto
+      final XFile foto = await cameraController!.takePicture();
+      
+      // Esperar a que se guarde
+      await Future.delayed(Duration(milliseconds: 500));
+      
+      // Verificar que el archivo existe
+      final file = File(foto.path);
+      if (!await file.exists()) {
+        error.value = "La foto no se guardó correctamente";
+        isLoading.value = false;
+        return;
+      }
+      
+      // Enviar imagen
+      var result = await _apiService.enviarImagen(foto.path);
+      
       if (result['success']) {
         final data = result['data'];
-        final nombreRostro = data['nombre'] ?? "Empleado";
-
-        final empleado = AppState.registrarEntradaSalidaSimulada(
-          "rostro_${DateTime.now().millisecondsSinceEpoch}",
-          nombreRostro,
-        );
-
-        animController.forward();
-
-        isLoading.value = false;
-        empleadoRegistrado.value = empleado;
-        tipo.value = empleado?.estado;
-        error.value = null;
-
-        await Future.delayed(const Duration(seconds: 4));
-        _limpiarFormulario();
-        Get.back(); 
+        final accesos = data['accesos'] as List? ?? [];
+        
+        // --- BLOQUE INYECTADO: MANEJO DE ACCESOS EXACTO ---
+        if (accesos.isNotEmpty) {
+          final primerAcceso = accesos[0];
+          final identificado = primerAcceso['identificado'] == true;
+          
+          if (identificado) {
+            // CASO ÉXITO
+            final nombreRostro = primerAcceso['persona'] ?? "Empleado";
+            final tipoAcceso = primerAcceso['tipo_acceso'] ?? "entrada";
+            
+            final empleado = Empleado(
+              id: "E_${DateTime.now().millisecondsSinceEpoch}",
+              nombre: nombreRostro,
+              departamento: tipoAcceso,
+            );
+            
+            animController.forward();
+            empleadoRegistrado.value = empleado;
+            tipo.value = tipoAcceso;
+            error.value = null;
+            isLoading.value = false;
+            
+            await Future.delayed(const Duration(seconds: 3));
+            Get.back();
+            await Future.delayed(const Duration(seconds: 1));
+            try {
+              Get.find<AdminController>().cargarEmpleados();
+              Get.find<AdminController>().cargarHistorial();
+            } catch (e) {
+              print('AdminController no inicializado: $e');
+            }
+          } else {
+            // CASO ERROR - Persona desconocida
+            error.value = "Persona desconocida. Intenta nuevamente.";
+            isLoading.value = false;
+            // NO hacer Get.back() - dejar que reintente
+          }
+        }
+        // --- FIN DEL BLOQUE INYECTADO ---
       } else {
+        error.value = result['error'] ?? "Error en detección";
         isLoading.value = false;
-        error.value = result['error'] ?? "No se reconoció el rostro.";
-        empleadoRegistrado.value = null;
       }
     } catch (e) {
       isLoading.value = false;
-      error.value = 'Error en el escaneo: $e';
+      error.value = 'Error: $e';
     }
   }
 

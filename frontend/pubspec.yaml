@@ -24,3 +24,12 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  fonts:
+    - family: LibreBaskerville
+      fonts:
+        - asset: assets/fonts/Libre_Baskerville/LibreBaskerville-VariableFont_wght.ttf
+
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Libre_Baskerville/Plus_Jakarta_Sans/PlusJakartaSans-VariableFont_wght.ttf

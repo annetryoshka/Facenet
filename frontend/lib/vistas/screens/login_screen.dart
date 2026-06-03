@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:facenet_app/controles/login_controller.dart';
-import 'package:facenet_app/utils/app_colors.dart';
 import 'package:facenet_app/vistas/widgets/admin_dialog.dart';
+
+// Paleta estética estricta y profesional
+const _colorFondo = Color(0xFFF8F9FA);
+const _colorBlanco = Color(0xFFFFFFFF);
+const _colorGrisSuave = Color(0xFFE5E5E5);
+const _colorGrisMedio = Color(0xFF7F7F7F);
+const _colorNegroElegante = Color(0xFF1A1A1A);
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -12,137 +18,102 @@ class LoginScreen extends StatelessWidget {
     final LoginController controller = Get.put(LoginController());
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [
-              AppColors.background,
-              AppColors.surfaceVariant,
-            ],
-          ),
-        ),
+      backgroundColor: _colorFondo,
+      body: SafeArea(
         child: FadeTransition(
           opacity: controller.fadeAnimation,
           child: SlideTransition(
             position: controller.slideAnimation,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 28.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo elegante
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.surface,
-                      border: Border.all(
-                        color: AppColors.accent,
-                        width: 2.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accent.withOpacity(0.2),
-                          blurRadius: 20,
-                          spreadRadius: 5,
+                  // ==========================================
+                  // 1. CONTENIDO CENTRAL (EXPANDED)
+                  // ==========================================
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.face_retouching_natural_rounded,
+                          size: 64,
+                          color: _colorNegroElegante,
+                        ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          "FaceNet",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 42,
+                            fontWeight: FontWeight.w700,
+                            color: _colorNegroElegante,
+                            letterSpacing: -0.8,
+                            fontFamily: 'LibreBaskerville',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Módulo Corporativo de Autenticación",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: _colorGrisMedio,
+                            letterSpacing: 1.5,
+                            fontFamily: 'Inter',
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+                        _ElegantButton(
+                          title: "Registrar Jornada",
+                          subtitle: "Identificación facial biométrica",
+                          icon: Icons.camera_alt_rounded,
+                          isPrimary: true,
+                          onTap: () => controller.irACamara(),
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.person_search_rounded,
-                      size: 50,
-                      color: AppColors.accent,
-                    ),
                   ),
 
-                  SizedBox(height: 48),
-
-                  // Títulos elegantes
-                  Text(
-                    "FaceNet",
-                    style: TextStyle(
-                      fontSize: 44,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
-                      letterSpacing: 2,
-                      fontFamily: 'Libre Baskerville',
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  SizedBox(height: 12),
-
-                  Text(
-                    "Control Inteligente de Acceso",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.textSecondary,
-                      letterSpacing: 0.5,
-                      fontFamily: 'IBM Plex Sans',
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  SizedBox(height: 64),
-
-                  // Botón Registrar Entrada
-                  _ElegantButton(
-                    title: "Registrar Entrada",
-                    subtitle: "Marca tu asistencia con reconocimiento facial",
-                    icon: Icons.camera_alt_rounded,
-                    color: AppColors.accent,
-                    onTap: () => controller.irACamara(),
-                  ),
-
-                  SizedBox(height: 16),
-
-                  // Botón Admin
-                  _ElegantButton(
-                    title: "Panel Administrativo",
-                    subtitle: "Gestiona empleados e historial",
-                    icon: Icons.admin_panel_settings_rounded,
-                    color: AppColors.primary,
-                    onTap: () => Get.dialog(AdminDialog()),
-                  ),
-
-                  Spacer(),
-
-                  // Footer elegante
-                  Column(
-                    children: [
-                      Container(
-                        height: 1,
-                        color: AppColors.dividerColor,
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        "Plataforma de Reconocimiento Facial",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textTertiary,
-                          letterSpacing: 0.3,
-                          fontFamily: 'IBM Plex Sans',
+                  // ==========================================
+                  // 2. FOOTER (ADMIN + COPYRIGHT)
+                  // ==========================================
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 24.0),
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () => Get.dialog(AdminDialog()),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              "¿Eres administrador? Accede aquí",
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: _colorGrisMedio.withOpacity(0.6),
+                                decoration: TextDecoration.underline,
+                                fontFamily: 'Inter',
+                              ),
+                            ),
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        "© 2026 FaceNet • Todos los derechos reservados",
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.textTertiary.withOpacity(0.7),
-                          letterSpacing: 0.2,
-                          fontFamily: 'IBM Plex Sans',
+                        Container(width: 40, height: 1, color: _colorGrisSuave),
+                        const SizedBox(height: 16),
+                        Text(
+                          "© 2026 FACENET TECHNOLOGIES",
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: _colorGrisMedio.withOpacity(0.7),
+                            letterSpacing: 1.5,
+                            fontFamily: 'Inter',
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 24),
-                    ],
+                        const SizedBox(height: 12),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -154,18 +125,21 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
+// ==========================================
+// COMPONENTE DE BOTÓN REFINADO
+// ==========================================
 class _ElegantButton extends StatefulWidget {
   final String title;
   final String subtitle;
   final IconData icon;
-  final Color color;
+  final bool isPrimary;
   final VoidCallback onTap;
 
   const _ElegantButton({
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.color,
+    required this.isPrimary,
     required this.onTap,
   });
 
@@ -177,20 +151,17 @@ class _ElegantButtonState extends State<_ElegantButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnim;
-  late Animation<Offset> _slideAnim;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 100),
       vsync: this,
     );
-    _scaleAnim = Tween<double>(begin: 1.0, end: 0.97).animate(
+    _scaleAnim = Tween<double>(begin: 1.0, end: 0.98).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-    _slideAnim = Tween<Offset>(begin: Offset.zero, end: Offset(0, 0.02))
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -201,6 +172,10 @@ class _ElegantButtonState extends State<_ElegantButton>
 
   @override
   Widget build(BuildContext context) {
+    final fondoContenedor = widget.isPrimary ? _colorNegroElegante : _colorBlanco;
+    final colorContenido = widget.isPrimary ? _colorBlanco : _colorNegroElegante;
+    final colorBorde = widget.isPrimary ? Colors.transparent : _colorGrisSuave;
+
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) {
@@ -210,87 +185,70 @@ class _ElegantButtonState extends State<_ElegantButton>
       onTapCancel: () => _controller.reverse(),
       child: ScaleTransition(
         scale: _scaleAnim,
-        child: SlideTransition(
-          position: _slideAnim,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: widget.color.withOpacity(0.15),
-                  blurRadius: 16,
-                  spreadRadius: 0,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Material(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: widget.color.withOpacity(0.2),
-                    width: 1.5,
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: widget.color.withOpacity(0.1),
-                        ),
-                        child: Icon(
-                          widget.icon,
-                          color: widget.color,
-                          size: 28,
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.title,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
-                                letterSpacing: 0.3,
-                                fontFamily: 'IBM Plex Sans',
-                              ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: _colorNegroElegante.withOpacity(widget.isPrimary ? 0.04 : 0.01),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Material(
+            color: fondoContenedor,
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: colorBorde, width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  children: [
+                    Icon(
+                      widget.icon,
+                      color: colorContenido.withOpacity(widget.isPrimary ? 0.9 : 0.7),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.title,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: colorContenido,
+                              letterSpacing: 0.2,
+                              fontFamily: 'Inter',
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              widget.subtitle,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: AppColors.textSecondary,
-                                height: 1.4,
-                                fontFamily: 'IBM Plex Sans',
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.subtitle,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
+                              color: widget.isPrimary
+                                  ? _colorBlanco.withOpacity(0.6)
+                                  : _colorGrisMedio,
+                              fontFamily: 'Inter',
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      SizedBox(width: 8),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: widget.color.withOpacity(0.5),
-                        size: 18,
-                      ),
-                    ],
-                  ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      color: colorContenido.withOpacity(0.3),
+                      size: 16,
+                    ),
+                  ],
                 ),
               ),
             ),

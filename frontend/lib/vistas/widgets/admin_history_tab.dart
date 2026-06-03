@@ -3,6 +3,13 @@ import 'package:get/get.dart';
 import 'package:facenet_app/data/models/registro.dart';
 import 'package:facenet_app/controles/admin_controller.dart';
 
+// Paleta corporativa unificada
+const _colorFondo = Color(0xFFF8F9FA);
+const _colorBlanco = Color(0xFFFFFFFF);
+const _colorGrisSuave = Color(0xFFE5E5E5);
+const _colorGrisMedio = Color(0xFF7F7F7F);
+const _colorNegroElegante = Color(0xFF1A1A1A);
+
 class AdminHistoryTab extends StatelessWidget {
   const AdminHistoryTab({Key? key}) : super(key: key);
 
@@ -10,68 +17,88 @@ class AdminHistoryTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final AdminController controller = Get.find<AdminController>();
 
-    return Padding(
-      padding: const EdgeInsets.all(15),
+    return Container(
+      color: _colorFondo,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Registros de Asistencia Recientes",
-            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 15),
+            child: Text(
+              "Historial de registros",
+              style: TextStyle(
+                color: _colorNegroElegante, 
+                fontSize: 16, 
+                fontWeight: FontWeight.w700,
+                fontFamily: 'LibreBaskerville'
+              ),
+            ),
           ),
-          const SizedBox(height: 15),
           
           Expanded(
             child: Obx(() {
-              // Pantalla de carga si está consumiendo el API
               if (controller.loadingHistory.value) {
-                return const Center(child: CircularProgressIndicator(color: Colors.deepPurple));
+                return const Center(child: CircularProgressIndicator(color: _colorNegroElegante));
               }
 
-              // Vista en caso de que no haya marcas registradas
               if (controller.historial.isEmpty) {
-                return const Center(
-                  child: Text("No hay registros de marcas el día de hoy.", style: TextStyle(color: Colors.grey)),
+                return Center(
+                  child: Text("Sin registros disponibles hoy.", 
+                      style: TextStyle(color: _colorGrisMedio, fontFamily: 'Inter')),
                 );
               }
 
               return ListView.builder(
                 itemCount: controller.historial.length,
                 itemBuilder: (context, index) {
-                  // Mapeamos el JSON reactivo al objeto Registro estruturado
                   final registro = Registro.fromJson(controller.historial[index]);
-                  
-                  // Configuración visual según Entrada o Salida
                   final bool esEntrada = registro.tipo.toLowerCase() == "entrada";
-                  final Color colorAcceso = esEntrada ? Colors.green : Colors.orange;
-                  final IconData iconoAcceso = esEntrada ? Icons.login : Icons.logout;
+                  
+                  // Colores sobrios para estados
+                  final Color colorAcceso = esEntrada ? const Color(0xFF2E7D32) : const Color(0xFFEF6C00);
 
                   return Card(
-                    color: Colors.grey[850],
+                    color: _colorBlanco,
+                    elevation: 0,
                     margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: _colorGrisSuave),
+                    ),
                     child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       leading: CircleAvatar(
-                        backgroundColor: colorAcceso.withOpacity(0.2),
-                        child: Icon(iconoAcceso, color: colorAcceso, size: 20),
+                        backgroundColor: colorAcceso.withOpacity(0.1),
+                        child: Icon(
+                          esEntrada ? Icons.login_rounded : Icons.logout_rounded, 
+                          color: colorAcceso, 
+                          size: 20
+                        ),
                       ),
                       title: Text(
                         registro.clase, 
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                        style: const TextStyle(
+                          color: _colorNegroElegante, 
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Inter'
+                        )
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 4),
-                          Text("Modo: ${registro.tipo.toUpperCase()}", style: TextStyle(color: colorAcceso, fontSize: 11, fontWeight: FontWeight.bold)),
-                          Text("Fuente: ${registro.fuente} • ${registro.fechaFormato} ${registro.horaFormato}", style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                          Text(
+                            "${registro.tipo.toUpperCase()} • ${registro.fechaFormato} ${registro.horaFormato}", 
+                            style: const TextStyle(color: _colorGrisMedio, fontSize: 11)
+                          ),
                         ],
                       ),
                       trailing: Text(
-                        "${registro.confianza.toStringAsFixed(1)}% Conf.",
+                        "${registro.confianza.toStringAsFixed(0)}%",
                         style: TextStyle(
-                          color: registro.confianza > 75 ? Colors.green[300] : Colors.amber[300],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13
+                          color: _colorNegroElegante.withOpacity(0.6),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12
                         ),
                       ),
                     ),

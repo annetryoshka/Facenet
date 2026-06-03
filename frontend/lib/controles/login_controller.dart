@@ -4,35 +4,36 @@ import 'package:get/get.dart';
 import 'package:facenet_app/services/api_service.dart';
 import 'package:facenet_app/vistas/screens/admin_screen.dart';
 import 'package:facenet_app/vistas/screens/camera_screen.dart';
+import '../../controles/asistencia_controller.dart'; 
+import '../../utils/app_colors.dart'; // Para usar tus estados de éxito/error globales
 
 class LoginController extends GetxController with GetSingleTickerProviderStateMixin {
-  // Controladores de UI animada
   late AnimationController animController;
   late Animation<double> fadeAnimation;
   late Animation<Offset> slideAnimation;
 
-  // Controladores del diálogo de administración
   final passwordController = TextEditingController();
   final String correctPassword = "admin123";
   final RxBool obscureText = true.obs;
   final RxBool loggingInAdmin = false.obs;
 
-  // API Service
   late ApiService _apiService;
+
+  // Paleta premium coordinada
+  static const _colorNegroElegante = Color(0xFF1A1A1A);
+  static const _colorBlanco = Color(0xFFFFFFFF);
 
   @override
   void onInit() {
     super.onInit();
     _apiService = ApiService();
     
-    // Inicialización de la animación original
     animController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
     fadeAnimation = CurvedAnimation(parent: animController, curve: Curves.easeInOut);
-    
     slideAnimation = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
         .animate(CurvedAnimation(parent: animController, curve: Curves.easeOut));
 
@@ -44,7 +45,12 @@ class LoginController extends GetxController with GetSingleTickerProviderStateMi
   }
 
   void irACamara() {
-    Get.to(() => CameraScreen());
+    Get.to(
+      () => const CameraScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<AsistenciaController>(() => AsistenciaController());
+      }),
+    );
   }
 
   void validarAccesoAdmin() {
@@ -57,14 +63,14 @@ class LoginController extends GetxController with GetSingleTickerProviderStateMi
         "Error de Autenticación",
         "Contraseña incorrecta",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        margin: EdgeInsets.all(15),
+        backgroundColor: AppColors.error.withOpacity(0.9), // Sofisticado, sin rojo semáforo
+        colorText: _colorBlanco,
+        margin: const EdgeInsets.all(15),
+        borderRadius: 8,
       );
     }
   }
 
-  // Login admin por reconocimiento facial
   Future<void> loginAdminFacial(File imagen) async {
     loggingInAdmin.value = true;
     try {
@@ -75,27 +81,30 @@ class LoginController extends GetxController with GetSingleTickerProviderStateMi
           "Login Exitoso",
           "Bienvenido administrador",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+          backgroundColor: _colorNegroElegante, // Fondo negro bloque premium
+          colorText: _colorBlanco,
+          borderRadius: 8,
         );
-        Get.back(); // Cierra el dialog
+        Get.back(); 
         Get.to(() => AdminScreen());
       } else {
         Get.snackbar(
           "Error de Autenticación",
           result['error'] ?? "No se pudo autenticar",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
+          backgroundColor: AppColors.error.withOpacity(0.9),
+          colorText: _colorBlanco,
+          borderRadius: 8,
         );
       }
     } catch (e) {
       Get.snackbar(
         "Error",
-        "Error en la comunicación con el servidor: $e",
+        "Error en la comunicación con el servidor",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+        backgroundColor: AppColors.error.withOpacity(0.9),
+        colorText: _colorBlanco,
+        borderRadius: 8,
       );
     } finally {
       loggingInAdmin.value = false;

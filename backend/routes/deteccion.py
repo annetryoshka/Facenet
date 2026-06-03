@@ -2,7 +2,9 @@ from flask import Blueprint, request, jsonify
 from ..services.yolo_service import yolo_service
 from ..services.reconocimiento_service import reconocimiento_service
 from ..services.acceso_service import AccesoService
+from ..services.empleado_service import EmpleadoService
 from ..models.database import db, Deteccion
+from sqlalchemy import func, case
 from datetime import datetime
 
 deteccion_bp = Blueprint('deteccion', __name__, url_prefix='/api/deteccion')
@@ -161,6 +163,33 @@ def historial_persona(nombre):
         'data':   registros
     })
 
+@deteccion_bp.get('/estadisticas')
+def estadisticas():
+    """
+    Endpoint que calcula las estadísticas actuales:
+    Total, Presentes (dentro), Ausentes y Porcentaje.
+    """
+    from ..services.empleado_service import EmpleadoService
+    
+    # 1. Total de empleados registrados en la empresa
+    total_empleados = EmpleadoService.contar_empleados()
+    
+    # 2. Empleados que están dentro actualmente
+    personas_dentro = AccesoService.obtener_personas_dentro()
+    cantidad_presentes = len(personas_dentro)
+    
+    # 3. Cálculos
+    ausentes = max(0, total_empleados - cantidad_presentes)
+    porcentaje = 0
+    if total_empleados > 0:
+        porcentaje = (cantidad_presentes / total_empleados) * 100
+        
+    return jsonify({
+        'total': total_empleados,
+        'presentes': cantidad_presentes,
+        'ausentes': ausentes,
+        'porcentaje': round(porcentaje, 2)
+    })
 
 @deteccion_bp.get('/reporte/hoy')
 def reporte_hoy():
@@ -186,4 +215,37 @@ def historial():
         'ok':    True,
         'total': len(registros),
         'data':  [r.to_dict() for r in registros],
+    })
+    
+@deteccion_bp.get('/estadisticas/historicas')
+def estadisticas_historicas():
+    """Estadísticas históricas de los últimos 7 días"""
+    from datetime import datetime, timedelta
+    from sqlalchemy import func
+    
+    hoy = datetime.utcnow().date()
+    hace_7_dias = hoy - timedelta(days=7)
+    
+    datos = db.session.query(
+        func.date(Deteccion.timestamp).label('fecha'),
+        func.count(Deteccion.id).label('total'),
+        func.sum(case((Deteccion.tipo == 'entrada', 1), else_=0)).label('entradas'),
+        func.sum(case((Deteccion.tipo == 'salida', 1), else_=0)).label('salidas'),
+    ).filter(func.date(Deteccion.timestamp) >= hace_7_dias).group_by(
+        func.date(Deteccion.timestamp)
+    ).all()
+    
+    historial = [
+        {
+            'fecha': str(d.fecha),
+            'total': d.total,
+            'entradas': d.entradas or 0,
+            'salidas': d.salidas or 0,
+        }
+        for d in datos
+    ]
+    
+    return jsonify({
+        'ok': True,
+        'historicas': historial
     })

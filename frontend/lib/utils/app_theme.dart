@@ -4,13 +4,10 @@ import 'app_colors.dart';
 
 class AppTheme {
   static ThemeData lightTheme() {
-    final baskervilleFont = GoogleFonts.libreBaskervillTextStyle;
-    final plexFont = GoogleFonts.ibmPlexSansTextStyle;
-    
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme: ColorScheme.light(
+      colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
         tertiary: AppColors.accent,
@@ -26,298 +23,7 @@ class AppTheme {
         shadowColor: AppColors.outline.withOpacity(0.3),
         centerTitle: true,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-          letterSpacing: 0.5,
-          fontFamily: 'Libre Baskerville',
-        ),
-      ),
-      cardTheme: CardThemeData(
-        color: AppColors.surface,
-        elevation: 1,
-        shadowColor: AppColors.outline.withOpacity(0.2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: AppColors.outline,
-            width: 1,
-          ),
-        ),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.textOnPrimary,
-          padding: EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          textStyle: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.3,
-            fontFamily: 'IBM Plex Sans',
-          ),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.secondary,
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          side: BorderSide(color: AppColors.outline, width: 1.5),
-          textStyle: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.2,
-            fontFamily: 'IBM Plex Sans',
-          ),
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.accent,
-          foregroundColor: Colors.white,
-          padding: EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          textStyle: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.3,
-            fontFamily: 'IBM Plex Sans',
-          ),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: AppColors.surfaceVariant,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.outline, width: 1),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.outline, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.accent, width: 2),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        labelStyle: TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        hintStyle: TextStyle(
-          color: AppColors.textTertiary,
-          fontSize: 14,
-          fontFamily: 'IBM Plex Sans',
-        ),
-      ),
-      textTheme: TextTheme(
-        displayLarge: TextStyle(
-          fontSize: 36,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
-          letterSpacing: 0.5,
-          fontFamily: 'Libre Baskerville',
-        ),
-        displayMedium: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
-          letterSpacing: 0.3,
-          fontFamily: 'Libre Baskerville',
-        ),
-        displaySmall: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
-          letterSpacing: 0.2,
-          fontFamily: 'Libre Baskerville',
-        ),
-        headlineLarge: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
-          fontFamily: 'Libre Baskerville',
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-          fontFamily: 'Libre Baskerville',
-        ),
-        headlineSmall: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-          letterSpacing: 0.1,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        titleLarge: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-          letterSpacing: 0.1,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        titleMedium: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        titleSmall: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textSecondary,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        bodyLarge: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: AppColors.textPrimary,
-          height: 1.5,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        bodyMedium: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          color: AppColors.textSecondary,
-          height: 1.5,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        bodySmall: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          color: AppColors.textTertiary,
-          height: 1.4,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        labelLarge: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-          letterSpacing: 0.1,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        labelMedium: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textSecondary,
-          letterSpacing: 0.1,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        labelSmall: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textTertiary,
-          letterSpacing: 0.1,
-          fontFamily: 'IBM Plex Sans',
-        ),
-      ),
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.darkSurface,
-        contentTextStyle: TextStyle(
-          color: AppColors.textOnPrimary,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          fontFamily: 'IBM Plex Sans',
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        elevation: 4,
-      ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: AppColors.accent,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      dividerTheme: DividerThemeData(
-        color: AppColors.dividerColor,
-        thickness: 1,
-        space: 16,
-      ),
-    );
-  }
-
-  static ThemeData darkTheme() {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: ColorScheme.dark(
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        tertiary: AppColors.accentLight,
-        surface: AppColors.darkSurface,
-        background: AppColors.darkBackground,
-        error: AppColors.error,
-      ),
-      scaffoldBackgroundColor: AppColors.darkBackground,
-      appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.darkSurface,
-        foregroundColor: AppColors.textOnPrimary,
-        elevation: 0,
-        centerTitle: true,
-        titleTextStyle: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textOnPrimary,
-          letterSpacing: 0.5,
-          fontFamily: 'Libre Baskerville',
-        ),
-      ),
-      textTheme: TextTheme(
-        displayLarge: TextStyle(
-          fontSize: 36,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textOnPrimary,
-          letterSpacing: 0.5,
-          fontFamily: 'Libre Baskerville',
-        ),
-        bodyLarge: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: AppColors.textOnPrimary,
-          fontFamily: 'IBM Plex Sans',
-        ),
-      ),
-    );
-  }
-}
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: ColorScheme.light(
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        tertiary: AppColors.accent,
-        surface: AppColors.surface,
-        background: AppColors.background,
-        error: AppColors.error,
-      ),
-      scaffoldBackgroundColor: AppColors.background,
-      appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 1,
-        shadowColor: AppColors.outline.withOpacity(0.3),
-        centerTitle: true,
-        surfaceTintColor: Colors.transparent,
-        titleTextStyle: GoogleFonts.libreBaskervilleTextStyle(
+        titleTextStyle: GoogleFonts.libreBaskerville(
           fontSize: 22,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
@@ -330,7 +36,7 @@ class AppTheme {
         shadowColor: AppColors.outline.withOpacity(0.2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
+          side: const BorderSide(
             color: AppColors.outline,
             width: 1,
           ),
@@ -340,11 +46,11 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.textOnPrimary,
-          padding: EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: GoogleFonts.ibmPlexSansTextStyle(
+          textStyle: GoogleFonts.ibmPlexSans(
             fontSize: 15,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.3,
@@ -354,12 +60,12 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.secondary,
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          side: BorderSide(color: AppColors.outline, width: 1.5),
-          textStyle: GoogleFonts.ibmPlexSansTextStyle(
+          side: const BorderSide(color: AppColors.outline, width: 1.5),
+          textStyle: GoogleFonts.ibmPlexSans(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.2,
@@ -370,12 +76,12 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.accent,
           foregroundColor: Colors.white,
-          padding: EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: GoogleFonts.ibmPlexSansTextStyle(
+          textStyle: GoogleFonts.ibmPlexSans(
             fontSize: 15,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.3,
@@ -387,109 +93,109 @@ class AppTheme {
         fillColor: AppColors.surfaceVariant,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.outline, width: 1),
+          borderSide: const BorderSide(color: AppColors.outline, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.outline, width: 1),
+          borderSide: const BorderSide(color: AppColors.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.accent, width: 2),
+          borderSide: const BorderSide(color: AppColors.accent, width: 2),
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        labelStyle: GoogleFonts.ibmPlexSansTextStyle(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        labelStyle: GoogleFonts.ibmPlexSans(
           color: AppColors.textSecondary,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
-        hintStyle: GoogleFonts.ibmPlexSansTextStyle(
+        hintStyle: GoogleFonts.ibmPlexSans(
           color: AppColors.textTertiary,
           fontSize: 14,
         ),
       ),
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.libreBaskervilleTextStyle(
+        displayLarge: GoogleFonts.libreBaskerville(
           fontSize: 36,
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
           letterSpacing: 0.5,
         ),
-        displayMedium: GoogleFonts.libreBaskervilleTextStyle(
+        displayMedium: GoogleFonts.libreBaskerville(
           fontSize: 32,
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
           letterSpacing: 0.3,
         ),
-        displaySmall: GoogleFonts.libreBaskervilleTextStyle(
+        displaySmall: GoogleFonts.libreBaskerville(
           fontSize: 28,
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
           letterSpacing: 0.2,
         ),
-        headlineLarge: GoogleFonts.libreBaskervilleTextStyle(
+        headlineLarge: GoogleFonts.libreBaskerville(
           fontSize: 24,
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
         ),
-        headlineMedium: GoogleFonts.libreBaskervilleTextStyle(
+        headlineMedium: GoogleFonts.libreBaskerville(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
-        headlineSmall: GoogleFonts.ibmPlexSansTextStyle(
+        headlineSmall: GoogleFonts.ibmPlexSans(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
           letterSpacing: 0.1,
         ),
-        titleLarge: GoogleFonts.ibmPlexSansTextStyle(
+        titleLarge: GoogleFonts.ibmPlexSans(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
           letterSpacing: 0.1,
         ),
-        titleMedium: GoogleFonts.ibmPlexSansTextStyle(
+        titleMedium: GoogleFonts.ibmPlexSans(
           fontSize: 16,
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
         ),
-        titleSmall: GoogleFonts.ibmPlexSansTextStyle(
+        titleSmall: GoogleFonts.ibmPlexSans(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
         ),
-        bodyLarge: GoogleFonts.ibmPlexSansTextStyle(
+        bodyLarge: GoogleFonts.ibmPlexSans(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: AppColors.textPrimary,
           height: 1.5,
         ),
-        bodyMedium: GoogleFonts.ibmPlexSansTextStyle(
+        bodyMedium: GoogleFonts.ibmPlexSans(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           color: AppColors.textSecondary,
           height: 1.5,
         ),
-        bodySmall: GoogleFonts.ibmPlexSansTextStyle(
+        bodySmall: GoogleFonts.ibmPlexSans(
           fontSize: 12,
           fontWeight: FontWeight.w400,
           color: AppColors.textTertiary,
           height: 1.4,
         ),
-        labelLarge: GoogleFonts.ibmPlexSansTextStyle(
+        labelLarge: GoogleFonts.ibmPlexSans(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
           letterSpacing: 0.1,
         ),
-        labelMedium: GoogleFonts.ibmPlexSansTextStyle(
+        labelMedium: GoogleFonts.ibmPlexSans(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
           letterSpacing: 0.1,
         ),
-        labelSmall: GoogleFonts.ibmPlexSansTextStyle(
+        labelSmall: GoogleFonts.ibmPlexSans(
           fontSize: 11,
           fontWeight: FontWeight.w500,
           color: AppColors.textTertiary,
@@ -498,7 +204,7 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.darkSurface,
-        contentTextStyle: GoogleFonts.ibmPlexSansTextStyle(
+        contentTextStyle: GoogleFonts.ibmPlexSans(
           color: AppColors.textOnPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -516,7 +222,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
         ),
       ),
-      dividerTheme: DividerThemeData(
+      dividerTheme: const DividerThemeData(
         color: AppColors.dividerColor,
         thickness: 1,
         space: 16,
@@ -528,7 +234,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: ColorScheme.dark(
+      colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
         tertiary: AppColors.accentLight,
@@ -542,7 +248,7 @@ class AppTheme {
         foregroundColor: AppColors.textOnPrimary,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.libreBaskervilleTextStyle(
+        titleTextStyle: GoogleFonts.libreBaskerville(
           fontSize: 22,
           fontWeight: FontWeight.w600,
           color: AppColors.textOnPrimary,
@@ -550,13 +256,13 @@ class AppTheme {
         ),
       ),
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.libreBaskervilleTextStyle(
+        displayLarge: GoogleFonts.libreBaskerville(
           fontSize: 36,
           fontWeight: FontWeight.w700,
           color: AppColors.textOnPrimary,
           letterSpacing: 0.5,
         ),
-        bodyLarge: GoogleFonts.ibmPlexSansTextStyle(
+        bodyLarge: GoogleFonts.ibmPlexSans(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: AppColors.textOnPrimary,

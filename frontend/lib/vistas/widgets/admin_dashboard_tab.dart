@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:facenet_app/controles/admin_controller.dart';
 
+// Paleta corporativa
+const _colorFondo = Color(0xFFF8F9FA);
+const _colorBlanco = Color(0xFFFFFFFF);
+const _colorGrisSuave = Color(0xFFE5E5E5);
+const _colorGrisMedio = Color(0xFF7F7F7F);
+const _colorNegroElegante = Color(0xFF1A1A1A);
+
 class AdminDashboardTab extends StatefulWidget {
   const AdminDashboardTab({Key? key}) : super(key: key);
 
@@ -17,16 +24,17 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> with SingleTicker
   @override
   void initState() {
     super.initState();
-    // Controlador que va de 0.0 a 1.0 continuamente para mover las olas
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(); 
+    _animationController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.cargarEstadisticas();
+      controller.cargarReporteDescuentos();
+    });
   }
 
   @override
   void dispose() {
-    _animationController.dispose(); // Limpieza de memoria
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -34,99 +42,135 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> with SingleTicker
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.loadingStats.value) {
-        return const Center(child: CircularProgressIndicator(color: Colors.deepPurple));
+        return const Center(child: CircularProgressIndicator(color: _colorNegroElegante));
       }
 
       final stats = controller.estadisticas;
-      if (stats.isEmpty) {
-        return const Center(
-          child: Text("Sin estadísticas hoy", style: TextStyle(color: Colors.white))
-        );
-      }
-
+      // Debug: Si en consola ves todo en 0, revisa los nombres de las llaves en stats
+      debugPrint("Estadísticas recibidas: $stats"); 
+      
       final double porcentajeDecimal = (double.tryParse(stats['porcentaje']?.toString() ?? '0') ?? 0) / 100;
 
       return RefreshIndicator(
-        onRefresh: () => controller.cargarEstadisticas(),
+        onRefresh: () async {
+          await controller.cargarEstadisticas();
+          await controller.cargarReporteDescuentos();
+        },
+        color: _colorNegroElegante,
         child: SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(20),
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              Text(
-                "Asistencia de Hoy", 
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)
+              const Text("Reporte de Hoy", 
+                style: TextStyle(color: _colorNegroElegante, fontSize: 18, fontWeight: FontWeight.w700, fontFamily: 'LibreBaskerville')
               ),
-              SizedBox(height: 35),
+              const SizedBox(height: 40),
               
-              //GRÁFICO LÍQUIDO CON ANIMACIÓN DE OLAS EN VIVO
+              // Gráfico Líquido
               SizedBox(
-                height: 220,
-                width: 220,
+                height: 200, width: 200,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // AnimatedBuilder hace que el CustomPaint se redibuje con cada frame de la animación
                     AnimatedBuilder(
                       animation: _animationController,
-                      builder: (context, child) {
-                        return ClipOval(
-                          child: Container(
-                            height: 200,
-                            width: 200,
-                            color: Colors.grey[900],
-                            child: CustomPaint(
-                              painter: LiquidPainter(
-                                value: porcentajeDecimal,
-                                animValue: _animationController.value, // Pasamos el valor que cambia en tiempo real
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    // Anillo exterior de decoración
-                    Container(
-                      height: 206,
-                      width: 206,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.deepPurple.withOpacity(0.5), width: 4),
+                      builder: (context, child) => ClipOval(
+                        child: Container(
+                          height: 200, width: 200,
+                          color: _colorGrisSuave,
+                          child: CustomPaint(painter: LiquidPainter(value: porcentajeDecimal, animValue: _animationController.value)),
+                        ),
                       ),
                     ),
-                    // Textos centrales
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          "${stats['porcentaje'] ?? '0'}%", 
-                          style: TextStyle(
-                            color: Colors.white, 
-                            fontSize: 34, 
-                            fontWeight: FontWeight.bold,
-                            shadows: [Shadow(blurRadius: 4, color: Colors.black54, offset: Offset(0, 2))]
-                          )
-                        ),
-                        Text(
-                          "Presentes", 
-                          style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)
-                        ),
+                        Text("${stats['porcentaje'] ?? '0'}%", style: const TextStyle(color: _colorNegroElegante, fontSize: 32, fontWeight: FontWeight.bold)),
+                        const Text("Presentes", style: TextStyle(color: _colorGrisMedio, fontSize: 12, fontWeight: FontWeight.w500)),
                       ],
                     )
                   ],
                 ),
               ),
-              SizedBox(height: 45),
               
-              // Tarjetas KPI
+              const SizedBox(height: 40),
+              
+              // Contadores KPIs (Aquí los he restaurado)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildKpiCard("Total Personal", "${stats['total'] ?? '0'}", Colors.blue),
-                  _buildKpiCard("Presentes", "${stats['presentes'] ?? '0'}", Colors.green),
-                  _buildKpiCard("Ausentes", "${stats['ausentes'] ?? '0'}", Colors.red),
+                  _buildKpiCard("Total", "${stats['total'] ?? '0'}"),
+                  _buildKpiCard("Activos", "${stats['presentes'] ?? '0'}"),
+                  _buildKpiCard("Ausentes", "${stats['ausentes'] ?? '0'}"),
                 ],
-              )
+              ),
+              
+              const SizedBox(height: 40),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Reporte de Descuentos", 
+                  style: TextStyle(color: _colorNegroElegante, fontSize: 16, fontWeight: FontWeight.w700)
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Lista de Descuentos
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: controller.reporteDescuentos.length,
+                itemBuilder: (context, index) {
+                  final item = controller.reporteDescuentos[index];
+                  return Card(
+                    elevation: 0,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: const BorderSide(color: _colorGrisSuave)),
+                    child: ListTile(
+                      leading: const Icon(Icons.info_outline_rounded, color: _colorGrisMedio, size: 20),
+                      title: Text(item['nombre'], style: const TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: const Text("Toca para ver desglose", style: TextStyle(fontSize: 10)),
+                      trailing: Text(
+                        "\$${(item['descuento'] as num).toStringAsFixed(2)}",
+                        style: const TextStyle(fontSize: 15, color: Colors.red, fontWeight: FontWeight.w700),
+                      ),
+                      onTap: () {
+                        final detalles = controller.obtenerDetalleDescuento(item['nombre']);
+                        Get.bottomSheet(
+                          Container(
+                            height: Get.height * 0.6,
+                            padding: const EdgeInsets.all(20),
+                            decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                            child: Column(
+                              children: [
+                                Text("Desglose: ${item['nombre']}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                const Divider(),
+                                Expanded(
+                                  child: ListView.separated(
+                                    itemCount: detalles.length,
+                                    separatorBuilder: (context, index) => const Divider(height: 1),
+                                    itemBuilder: (context, index) {
+                                      final d = detalles[index];
+                                      final bool esEntrada = d['tipo']?.toString().toLowerCase() == 'entrada';
+                                      return ListTile(
+                                        leading: Icon(esEntrada ? Icons.login_rounded : Icons.logout_rounded, color: esEntrada ? Colors.green : Colors.orange),
+                                        title: Text(d['tipo']?.toString().toUpperCase() ?? 'EVENTO', style: const TextStyle(fontWeight: FontWeight.w600)),
+                                        subtitle: Text(d['timestamp']?.toString() ?? ''),
+                                        trailing: const Text("-\$5.00", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          isScrollControlled: true,
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -134,69 +178,42 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> with SingleTicker
     });
   }
 
-  Widget _buildKpiCard(String title, String value, Color color) {
+  Widget _buildKpiCard(String title, String value) {
     return Container(
-      width: 105,
-      padding: EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.grey[850], 
-        borderRadius: BorderRadius.circular(12)
-      ),
+      width: 100, padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(color: _colorBlanco, borderRadius: BorderRadius.circular(8), border: Border.all(color: _colorGrisSuave)),
       child: Column(
         children: [
-          Text(value, style: TextStyle(color: color, fontSize: 26, fontWeight: FontWeight.bold)),
-          SizedBox(height: 6),
-          Text(title, style: TextStyle(color: Colors.grey, fontSize: 11), textAlign: TextAlign.center),
+          Text(value, style: const TextStyle(color: _colorNegroElegante, fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(title, style: const TextStyle(color: _colorGrisMedio, fontSize: 10)),
         ],
       ),
     );
   }
 }
 
-
 class LiquidPainter extends CustomPainter {
-  final double value;     // Nivel de llenado (0.0 a 1.0)
-  final double animValue; 
-  
+  final double value;
+  final double animValue;
   LiquidPainter({required this.value, required this.animValue});
 
   @override
   void paint(Canvas canvas, Size size) {
     double yWaterLevel = size.height * (1.0 - value);
-
-    // 1. Capa trasera del agua (Morado translúcido)
-    Paint paintDeep = Paint()..color = Colors.deepPurple.withOpacity(0.45);
-    Path pathDeep = Path();
-
-    pathDeep.moveTo(0, yWaterLevel);
+    Paint paint = Paint()..color = _colorNegroElegante.withOpacity(0.3);
+    Path path = Path();
+    path.moveTo(0, yWaterLevel);
     for (double x = 0; x <= size.width; x++) {
-      double y = yWaterLevel + 7 * sin((x / size.width * 2 * pi) + (animValue * 2 * pi));
-      pathDeep.lineTo(x, y);
+      double y = yWaterLevel + 8 * sin((x / size.width * 2 * pi) + (animValue * 2 * pi));
+      path.lineTo(x, y);
     }
-    pathDeep.lineTo(size.width, size.height);
-    pathDeep.lineTo(0, size.height);
-    pathDeep.close();
-    canvas.drawPath(pathDeep, paintDeep);
-
-    // 2. Capa frontal del agua (Azul translúcido con movimiento inverso)
-    Paint paintLight = Paint()..color = Colors.blue.withOpacity(0.3);
-    Path pathLight = Path();
-
-    pathLight.moveTo(0, yWaterLevel);
-    for (double x = 0; x <= size.width; x++) {
-      
-      double y = yWaterLevel + 5 * sin((x / size.width * 2 * pi) - (animValue * 2 * pi) + pi);
-      pathLight.lineTo(x, y);
-    }
-    pathLight.lineTo(size.width, size.height);
-    pathLight.lineTo(0, size.height);
-    pathLight.close();
-    canvas.drawPath(pathLight, paintLight);
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+    canvas.drawPath(path, paint);
   }
 
   @override 
-  bool shouldRepaint(covariant LiquidPainter oldDelegate) {
-    
-    return oldDelegate.animValue != animValue || oldDelegate.value != value;
-  }
+  bool shouldRepaint(covariant LiquidPainter oldDelegate) => true;
 }

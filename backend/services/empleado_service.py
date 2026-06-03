@@ -96,3 +96,26 @@ class EmpleadoService:
         """Retorna lista de todos los empleados"""
         empleados = Empleado.query.all()
         return [e.to_dict() for e in empleados]
+    
+    @staticmethod
+    def eliminar_empleado(nombre: str) -> dict:
+        """
+        Elimina un empleado de la base de datos por su nombre.
+        """
+        empleado = Empleado.query.filter_by(nombre=nombre).first()
+        
+        if not empleado:
+            return {'error': 'Empleado no encontrado en la base de datos'}
+
+        try:
+            db.session.delete(empleado)
+            db.session.commit()
+            return {'ok': True, 'mensaje': f'Empleado {nombre} eliminado de la BD'}
+        except Exception as e:
+            db.session.rollback()
+            return {'error': f'No se pudo eliminar de la BD: {str(e)}'}
+        
+    @staticmethod
+    def contar_empleados() -> int:
+        """Cuenta total de empleados en la base de datos"""
+        return Empleado.query.count()

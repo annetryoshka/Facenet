@@ -2,7 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+
+// Paleta corporativa unificada
+const _colorFondo = Color(0xFFF8F9FA);
+const _colorBlanco = Color(0xFFFFFFFF);
+const _colorGrisMedio = Color(0xFF7F7F7F);
+const _colorNegroElegante = Color(0xFF1A1A1A);
 
 class AdminCameraCapture extends StatefulWidget {
   final Function(File) onImageCapture;
@@ -30,36 +35,35 @@ class _AdminCameraCaptureState extends State<AdminCameraCapture> {
   Future<void> _initializeCamera() async {
     try {
       final cameras = await availableCameras();
-      if (cameras.isNotEmpty) {
-        _cameraController = CameraController(
-          cameras[0],
-          ResolutionPreset.high,
-        );
+      // Buscamos la cámara frontal (front)
+      final frontCamera = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.front,
+        orElse: () => cameras[0],
+      );
 
-        await _cameraController!.initialize();
-        if (mounted) {
-          setState(() {
-            _isCameraInitialized = true;
-          });
-        }
-      }
+      _cameraController = CameraController(
+        frontCamera,
+        ResolutionPreset.high,
+      );
+      
+      await _cameraController!.initialize();
+      if (mounted) setState(() => _isCameraInitialized = true);
     } catch (e) {
-      print("Error inicializando cámara: $e");
+      debugPrint("Error inicializando cámara: $e");
     }
   }
 
   Future<void> _capturePhoto() async {
     if (!_isCameraInitialized || _cameraController == null) return;
-
     try {
       setState(() => _isCapturing = true);
       final XFile photo = await _cameraController!.takePicture();
       widget.onImageCapture(File(photo.path));
       Get.back();
     } catch (e) {
-      print("Error capturando foto: $e");
+      debugPrint("Error capturando foto: $e");
     } finally {
-      setState(() => _isCapturing = false);
+      if (mounted) setState(() => _isCapturing = false);
     }
   }
 
@@ -72,100 +76,50 @@ class _AdminCameraCaptureState extends State<AdminCameraCapture> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: _colorFondo,
       appBar: AppBar(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: _colorFondo,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close, color: Colors.white),
+          icon: const Icon(Icons.close_rounded, color: _colorNegroElegante),
           onPressed: () => Get.back(),
         ),
-        title: Text("Capturar Foto", style: TextStyle(color: Colors.white)),
+        title: const Text(
+          "Captura Facial",
+          style: TextStyle(color: _colorNegroElegante, fontFamily: 'LibreBaskerville', fontWeight: FontWeight.w700),
+        ),
         centerTitle: true,
-        elevation: 0,
       ),
       body: _isCameraInitialized && _cameraController != null
           ? Stack(
               children: [
-                // Fondo con cámara
+                // Vista previa rectangular estilo CameraScreen
                 Center(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.orange, width: 4),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.orange.withOpacity(0.5),
-                          blurRadius: 20,
-                          spreadRadius: 5,
-                        ),
-                      ],
-                    ),
-                    width: 300,
-                    height: 300,
-                    child: ClipOval(
-                      child: CameraPreview(_cameraController!),
-                    ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: _colorNegroElegante, width: 2),
                   ),
-                ),
-                // Guía de texto
-                Positioned(
-                  top: 60,
-                  left: 0,
-                  right: 0,
-                  child: Column(
-                    children: [
-                      Text(
-                        "Posiciónate frente",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
+                  width: Get.width * 0.85,
+                  height: Get.height * 0.5,
+                  // APLICAMOS ESTE CAMBIO:
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: FittedBox(
+                      fit: BoxFit.cover, // Esto evita que se distorsione al rellenar el espacio
+                      child: SizedBox(
+                        // Obtenemos la relación de aspecto del preview
+                        width: _cameraController!.value.previewSize?.height,
+                        height: _cameraController!.value.previewSize?.width,
+                        child: CameraPreview(_cameraController!),
                       ),
-                      Text(
-                        "a la cámara",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                // Botón capturar
-                Positioned(
-                  bottom: 40,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: FloatingActionButton(
-                      onPressed: _isCapturing ? null : _capturePhoto,
-                      backgroundColor: Colors.orange,
-                      disabledElevation: 0,
-                      elevation: 8,
-                      child: _isCapturing
-                          ? SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : Icon(Icons.camera_alt, size: 32, color: Colors.white),
                     ),
                   ),
                 ),
+              ),
               ],
             )
-          : Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
-              ),
-            ),
+          : const Center(child: CircularProgressIndicator(color: _colorNegroElegante)),
     );
   }
 }
