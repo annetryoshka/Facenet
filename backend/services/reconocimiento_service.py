@@ -9,7 +9,7 @@ class ReconocimientoService:
 
     def __init__(self):
         os.makedirs(DATASET_PATH, exist_ok=True)
-        print('✅ Servicio de reconocimiento listo')
+        print('Servicio de reconocimiento listo')
 
     def registrar_persona(self, nombre: str, imagen_bytes: bytes) -> dict:
         """
